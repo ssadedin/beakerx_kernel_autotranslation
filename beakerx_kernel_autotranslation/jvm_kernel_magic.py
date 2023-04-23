@@ -15,6 +15,9 @@ from queue import Empty
 from jupyter_client.manager import KernelManager
 import json
 
+import logging
+import threading
+import asyncio
 
 class JVMKernelMagic:
 
@@ -41,6 +44,16 @@ class JVMKernelMagic:
     def run_cell(self, code):
         if not self.km:
             self.start()
+            #log.info("Starting the KernelManager in thread %s", threading.current_thread())
+        
+        #log.info("Setting event loop for KernelManager in thread %s", threading.current_thread())
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+        
+         
         self.kc.execute(code, allow_stdin=True)
 
     def get_shell_msg(self):
